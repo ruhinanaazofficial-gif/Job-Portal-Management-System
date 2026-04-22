@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        function toggleCompanyField() {
+            var isEmployer = document.getElementById('roleEmployer').checked;
+            document.getElementById('companyFieldGroup').style.display = isEmployer ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body class="animate-fade">
+    <div class="auth-container">
+        <div class="auth-box" style="max-width: 480px;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <a href="/" class="logo" style="justify-content: center;">
+                   <span style="background: var(--primary); color: white; padding: 4px 8px; border-radius: 6px; font-size: 1.2rem;">J</span> JobPortal
+                </a>
+            </div>
+            
+            <h2 class="auth-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Create an account</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem;">Join us to find your dream job or recruit top talent.</p>
+            
+            <div th:if="${emailError}" class="alert alert-error" th:text="${emailError}"></div>
+
+            <form th:action="@{/register}" method="post" th:object="${user}">
+                
+                <div style="background: #F9FAFB; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+                    <label class="form-label">I want to use JobPortal as:</label>
+                    <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                            <input type="radio" name="role" id="roleStudent" value="ROLE_STUDENT" checked onchange="toggleCompanyField()" style="accent-color: var(--primary);"> 
+                            Candidate
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                            <input type="radio" name="role" id="roleEmployer" value="ROLE_EMPLOYER" onchange="toggleCompanyField()" style="accent-color: var(--primary);"> 
+                            Employer
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label" for="name">Full Name</label>
+                    <input type="text" id="name" th:field="*{name}" class="input" placeholder="John Doe" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                </div>
+
+                <div class="form-field" id="companyFieldGroup" style="display: none;">
+                    <label class="form-label" for="companyName">Company Name</label>
+                    <input type="text" id="companyName" th:field="*{companyName}" class="input" placeholder="e.g. Acme Corp">
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" th:field="*{email}" class="input" placeholder="name@company.com" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" th:field="*{password}" class="input" placeholder="Create a strong password" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-4" style="width: 100%; height: 42px;">Complete Registration</button>
+            </form>
+            
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center;">
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Already have an account? <a href="/login" style="font-weight: 600; color: var(--primary);">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

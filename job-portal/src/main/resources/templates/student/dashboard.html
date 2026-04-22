@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="animate-fade">
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 2.5rem;">
+                <span style="background: var(--primary); color: white; padding: 4px 8px; border-radius: 6px; font-size: 1.2rem;">J</span> JobPortal
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Me</div>
+                <a href="/student/dashboard" class="nav-item active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="/jobs" class="nav-item">
+                    <i class="fas fa-search"></i> Jobs Market
+                </a>
+            </div>
+
+            <div class="nav-group" style="margin-top: auto;">
+                <div class="nav-label">Account</div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-item" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="section-header">
+                <div>
+                    <h1 style="font-size: 1.5rem; margin-bottom: 0.25rem;">Candidate Dashboard</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Manage your profile and track applications.</p>
+                </div>
+                <a href="/jobs" class="btn btn-primary"><i class="fas fa-search"></i> Find New Jobs</a>
+            </header>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            
+            <div class="grid" style="grid-template-columns: 1fr 1.5fr;">
+                <!-- Profile Settings -->
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem;">Profile Settings</h3>
+                    <form th:action="@{/student/profile/update}" method="post" enctype="multipart/form-data">
+                        <div class="form-field">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" th:value="${user.name}" class="input" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">About Me</label>
+                            <textarea name="about" class="input" rows="3" placeholder="A short bio..." style="resize: vertical;"><span th:text="${user.about}"></span></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2">
+                            <div class="form-field">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" name="phone" th:value="${user.phone}" class="input">
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Location</label>
+                                <input type="text" name="location" th:value="${user.location}" class="input">
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="form-label">Skills (Comma separated)</label>
+                            <input type="text" name="skills" th:value="${user.skills}" class="input" placeholder="e.g. Java, Python">
+                        </div>
+
+                        <div class="form-field">
+                            <label class="form-label">GitHub URL</label>
+                            <input type="url" name="githubProfile" th:value="${user.githubProfile}" class="input" placeholder="https://github.com/username">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">LinkedIn URL</label>
+                            <input type="url" name="linkedinProfile" th:value="${user.linkedinProfile}" class="input" placeholder="https://linkedin.com/in/username">
+                        </div>
+
+                        <div class="form-field">
+                            <label class="form-label">Resume Upload</label>
+                            <div th:if="${user.resumePath != null}" style="margin-bottom: 0.5rem;">
+                                <a th:href="@{'/uploads/' + ${user.resumePath}}" target="_blank" class="badge badge-info"><i class="far fa-file-pdf"></i> View Resume</a>
+                            </div>
+                            <input type="file" name="resume" class="input" accept=".pdf,.doc,.docx" style="padding: 0.4rem;">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; height: 42px; margin-top: 1rem;">Update Profile</button>
+                    </form>
+                </div>
+                
+                <!-- Application History -->
+                <div>
+                   <div class="card" style="padding: 0;">
+                        <div class="section-header" style="padding: 1.5rem 1.5rem 0.5rem 1.5rem; border-bottom: none; margin-bottom: 0;">
+                            <h3 style="font-size: 1.1rem;">Application History</h3>
+                        </div>
+                        <div class="table-container" style="border: none; border-radius: 0 0 var(--radius-md) var(--radius-md);">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Role & Company</th>
+                                        <th>Applied On</th>
+                                        <th style="text-align: right;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="app : ${applications}">
+                                        <td>
+                                            <div style="font-weight: 600; color: var(--text-main);" th:text="${app.job.title}">Job Title</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${app.job.postedBy.companyName != null ? app.job.postedBy.companyName : app.job.postedBy.name}">Company</div>
+                                        </td>
+                                        <td style="color: var(--text-muted);" th:text="${#temporals.format(app.appliedDate, 'dd MMM yyyy')}">Date</td>
+                                        <td style="text-align: right;">
+                                            <span th:if="${app.status.name() == 'APPLIED'}" class="badge badge-info">Applied</span>
+                                            <span th:if="${app.status.name() == 'SHORTLISTED'}" class="badge badge-warning">Shortlisted</span>
+                                            <span th:if="${app.status.name() == 'INTERVIEW'}" class="badge badge-warning">Interview</span>
+                                            <span th:if="${app.status.name() == 'HIRED'}" class="badge badge-success">Hired!</span>
+                                            <span th:if="${app.status.name() == 'REJECTED'}" class="badge badge-error">Rejected</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(applications)}">
+                                        <td colspan="3" style="text-align: center; padding: 4rem;">
+                                            <p style="color: var(--text-subtle);">No job applications found yet.</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
