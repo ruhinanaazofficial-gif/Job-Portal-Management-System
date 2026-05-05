@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Jobs - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="animate-fade">
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 2.5rem;">
+                <span style="background: var(--primary); color: white; padding: 4px 8px; border-radius: 6px; font-size: 1.2rem;">J</span> JobPortal
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Management</div>
+                <a href="/admin/dashboard" class="nav-item">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="/admin/users" class="nav-item">
+                    <i class="fas fa-users"></i> Users Control
+                </a>
+                <a href="/admin/jobs" class="nav-item active">
+                    <i class="fas fa-briefcase"></i> Job Monitor
+                </a>
+            </div>
+
+            <div class="nav-group" style="margin-top: auto;">
+                <div class="nav-label">Account</div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-item" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="section-header">
+                <div>
+                    <h1 style="font-size: 1.5rem; margin-bottom: 0.25rem;">Global Job Audit</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Platform-wide job postings monitor.</p>
+                </div>
+                <a href="/admin/dashboard" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            </header>
+
+            <div class="card" style="padding: 0;">
+                <div class="table-container" style="border: none; border-radius: var(--radius-md);">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Job Details</th>
+                                <th>Employer Account</th>
+                                <th>Meta</th>
+                                <th style="text-align: center;">Applicants</th>
+                                <th style="text-align: right;">Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="job : ${jobs}">
+                                <td>
+                                    <div style="font-weight: 600; color: var(--text-main);" th:text="${job.title}">Title</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${job.location}">Location</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;"><span th:text="${job.postedBy.companyName != null ? job.postedBy.companyName : job.postedBy.name}">Employer</span></div>
+                                    <div style="font-size: 0.75rem; color: var(--text-subtle);" th:text="${job.postedBy.email}">Email</div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info" th:text="${job.category}" style="margin-right: 4px;">Cat</span>
+                                    <span class="badge badge-warning" th:text="${job.workMode}">Mode</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div style="font-weight: 700; color: var(--primary);" th:text="${job.applications.size()}">0</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form th:action="@{'/admin/job/' + ${job.id} + '/delete'}" method="post" onsubmit="return confirm('ADMIN WARNING: Force delete this active job?');">
+                                        <button type="submit" class="btn btn-ghost" style="color: var(--accent); padding: 0.35rem 0.75rem;"><i class="fas fa-ban"></i> Terminate Posting</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(jobs)}">
+                                <td colspan="5" style="text-align: center; padding: 4rem;">
+                                    <p style="color: var(--text-subtle);">No jobs currently exist system-wide.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
